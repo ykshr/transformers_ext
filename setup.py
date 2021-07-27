@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 from setuptools import find_packages, setup
+
+def _requires_from_file(filename):
+    return open(filename).read().splitlines()
+
 setup(
     name="transformersExt",
     version="0.1",
