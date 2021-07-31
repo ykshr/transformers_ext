@@ -10,6 +10,6 @@ setup(
     author="ykshr",
     url="https://github.com/ykshr/transformers_ext",
     packages=find_packages(),
-    python_requires=">=3.8",
+    python_requires=">=3.7",
     install_requires=_requires_from_file('requirements.txt'),
 )
