@@ -794,10 +794,10 @@ LAYOUTLM_INPUTS_DOCSTRING = r"""
 """
 
 
-@add_start_docstrings(
-    "The bare LayoutLM Model transformer outputting raw hidden-states without any specific head on top.",
-    LAYOUTLM_START_DOCSTRING,
-)
+# @add_start_docstrings(
+#     "The bare LayoutLM Model transformer outputting raw hidden-states without any specific head on top.",
+#     LAYOUTLM_START_DOCSTRING,
+# )
 class LayoutLM2dModel(LayoutLM2dPreTrainedModel):
     def __init__(self, config):
         super(LayoutLM2dModel, self).__init__(config)
@@ -823,8 +823,8 @@ class LayoutLM2dModel(LayoutLM2dPreTrainedModel):
         for layer, heads in heads_to_prune.items():
             self.encoder.layer[layer].attention.prune_heads(heads)
 
-    @add_start_docstrings_to_model_forward(LAYOUTLM_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
-    @replace_return_docstrings(output_type=BaseModelOutputWithPoolingAndCrossAttentions, config_class=_CONFIG_FOR_DOC)
+    # @add_start_docstrings_to_model_forward(LAYOUTLM_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
+    # @replace_return_docstrings(output_type=BaseModelOutputWithPoolingAndCrossAttentions, config_class=_CONFIG_FOR_DOC)
     def forward(
         self,
         input_ids=None,
