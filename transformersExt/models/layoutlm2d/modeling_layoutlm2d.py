@@ -54,14 +54,14 @@ LAYOUTLM_PRETRAINED_MODEL_ARCHIVE_LIST = [
 ]
 
 
-LayoutLM2dLayerNorm = torch.nn.LayerNorm
+LayoutLMLayerNorm = torch.nn.LayerNorm
 
 
-class LayoutLM2dEmbeddings(nn.Module):
+class LayoutLMEmbeddings(nn.Module):
     """Construct the embeddings from word, position and token_type embeddings."""
 
     def __init__(self, config):
-        super(LayoutLM2dEmbeddings, self).__init__()
+        super(LayoutLMEmbeddings, self).__init__()
         self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
         self.x_position_embeddings = nn.Embedding(config.max_2d_position_embeddings, config.hidden_size)
@@ -70,7 +70,7 @@ class LayoutLM2dEmbeddings(nn.Module):
         self.w_position_embeddings = nn.Embedding(config.max_2d_position_embeddings, config.hidden_size)
         self.token_type_embeddings = nn.Embedding(config.type_vocab_size, config.hidden_size)
 
-        self.LayerNorm = LayoutLM2dLayerNorm(config.hidden_size, eps=config.layer_norm_eps)
+        self.LayerNorm = LayoutLMLayerNorm(config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
 
         self.register_buffer("position_ids", torch.arange(config.max_position_embeddings).expand((1, -1)))
@@ -132,7 +132,7 @@ class LayoutLM2dEmbeddings(nn.Module):
 
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfAttention with Bert->LayoutLM
-class LayoutLM2dSelfAttention(nn.Module):
+class LayoutLMSelfAttention(nn.Module):
     def __init__(self, config):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
@@ -267,7 +267,7 @@ class LayoutLM2dSelfAttention(nn.Module):
 
 
 # Copied from transformers.models.bert.modeling_bert.BertSelfOutput with Bert->LayoutLM
-class LayoutLM2dSelfOutput(nn.Module):
+class LayoutLMSelfOutput(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
@@ -282,11 +282,11 @@ class LayoutLM2dSelfOutput(nn.Module):
 
 
 # Copied from transformers.models.bert.modeling_bert.BertAttention with Bert->LayoutLM
-class LayoutLM2dAttention(nn.Module):
+class LayoutLMAttention(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.self = LayoutLM2dSelfAttention(config)
-        self.output = LayoutLM2dSelfOutput(config)
+        self.self = LayoutLMSelfAttention(config)
+        self.output = LayoutLMSelfOutput(config)
         self.pruned_heads = set()
 
     def prune_heads(self, heads):
@@ -336,7 +336,7 @@ class LayoutLM2dAttention(nn.Module):
 
 
 # Copied from transformers.models.bert.modeling_bert.BertIntermediate
-class LayoutLM2dIntermediate(nn.Module):
+class LayoutLMIntermediate(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.intermediate_size)
@@ -352,7 +352,7 @@ class LayoutLM2dIntermediate(nn.Module):
 
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput with Bert->LayoutLM
-class LayoutLM2dOutput(nn.Module):
+class LayoutLMOutput(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.intermediate_size, config.hidden_size)
@@ -367,19 +367,19 @@ class LayoutLM2dOutput(nn.Module):
 
 
 # Copied from transformers.models.bert.modeling_bert.BertLayer with Bert->LayoutLM
-class LayoutLM2dLayer(nn.Module):
+class LayoutLMLayer(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
-        self.attention = LayoutLM2dAttention(config)
+        self.attention = LayoutLMAttention(config)
         self.is_decoder = config.is_decoder
         self.add_cross_attention = config.add_cross_attention
         if self.add_cross_attention:
             assert self.is_decoder, f"{self} should be used as a decoder model if cross attention is added"
-            self.crossattention = LayoutLM2dAttention(config)
-        self.intermediate = LayoutLM2dIntermediate(config)
-        self.output = LayoutLM2dOutput(config)
+            self.crossattention = LayoutLMAttention(config)
+        self.intermediate = LayoutLMIntermediate(config)
+        self.output = LayoutLMOutput(config)
 
     def forward(
         self,
@@ -477,11 +477,11 @@ def relative_position_bucket(relative_position, bidirectional=True, num_buckets=
     return ret
 
 # Copied from transformers.models.bert.modeling_bert.BertEncoder with Bert->LayoutLM
-class LayoutLM2dEncoder(nn.Module):
+class LayoutLMEncoder(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.layer = nn.ModuleList([LayoutLM2dLayer(config) for _ in range(config.num_hidden_layers)])
+        self.layer = nn.ModuleList([LayoutLMLayer(config) for _ in range(config.num_hidden_layers)])
 
         self.has_relative_attention_bias = config.has_relative_attention_bias
         self.has_spatial_attention_bias = config.has_spatial_attention_bias
@@ -637,7 +637,7 @@ class LayoutLM2dEncoder(nn.Module):
 
 
 # Copied from transformers.models.bert.modeling_bert.BertPooler
-class LayoutLM2dPooler(nn.Module):
+class LayoutLMPooler(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
@@ -653,7 +653,7 @@ class LayoutLM2dPooler(nn.Module):
 
 
 # Copied from transformers.models.bert.modeling_bert.BertPredictionHeadTransform with Bert->LayoutLM
-class LayoutLM2dPredictionHeadTransform(nn.Module):
+class LayoutLMPredictionHeadTransform(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
@@ -671,10 +671,10 @@ class LayoutLM2dPredictionHeadTransform(nn.Module):
 
 
 # Copied from transformers.models.bert.modeling_bert.BertLMPredictionHead with Bert->LayoutLM
-class LayoutLM2dLMPredictionHead(nn.Module):
+class LayoutLMLMPredictionHead(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.transform = LayoutLM2dPredictionHeadTransform(config)
+        self.transform = LayoutLMPredictionHeadTransform(config)
 
         # The output weights are the same as the input embeddings, but there is
         # an output-only bias for each token.
@@ -692,17 +692,17 @@ class LayoutLM2dLMPredictionHead(nn.Module):
 
 
 # Copied from transformers.models.bert.modeling_bert.BertOnlyMLMHead with Bert->LayoutLM
-class LayoutLM2dOnlyMLMHead(nn.Module):
+class LayoutLMOnlyMLMHead(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.predictions = LayoutLM2dLMPredictionHead(config)
+        self.predictions = LayoutLMLMPredictionHead(config)
 
     def forward(self, sequence_output):
         prediction_scores = self.predictions(sequence_output)
         return prediction_scores
 
 
-class LayoutLM2dPreTrainedModel(PreTrainedModel):
+class LayoutLMPreTrainedModel(PreTrainedModel):
     """
     An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
     models.
@@ -710,7 +710,7 @@ class LayoutLM2dPreTrainedModel(PreTrainedModel):
 
     config_class = LayoutLM2dConfig
     pretrained_model_archive_map = LAYOUTLM_PRETRAINED_MODEL_ARCHIVE_LIST
-    base_model_prefix = "layoutlm2d"
+    base_model_prefix = "layoutlm"
     _keys_to_ignore_on_load_missing = [r"position_ids"]
 
     def _init_weights(self, module):
@@ -725,7 +725,7 @@ class LayoutLM2dPreTrainedModel(PreTrainedModel):
             module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
             if module.padding_idx is not None:
                 module.weight.data[module.padding_idx].zero_()
-        elif isinstance(module, LayoutLM2dLayerNorm):
+        elif isinstance(module, LayoutLMLayerNorm):
             module.bias.data.zero_()
             module.weight.data.fill_(1.0)
 
@@ -798,14 +798,14 @@ LAYOUTLM_INPUTS_DOCSTRING = r"""
 #     "The bare LayoutLM Model transformer outputting raw hidden-states without any specific head on top.",
 #     LAYOUTLM_START_DOCSTRING,
 # )
-class LayoutLM2dModel(LayoutLM2dPreTrainedModel):
+class LayoutLM2dModel(LayoutLMPreTrainedModel):
     def __init__(self, config):
         super(LayoutLM2dModel, self).__init__(config)
         self.config = config
 
-        self.embeddings = LayoutLM2dEmbeddings(config)
-        self.encoder = LayoutLM2dEncoder(config)
-        self.pooler = LayoutLM2dPooler(config)
+        self.embeddings = LayoutLMEmbeddings(config)
+        self.encoder = LayoutLMEncoder(config)
+        self.pooler = LayoutLMPooler(config)
 
         self.init_weights()
 
