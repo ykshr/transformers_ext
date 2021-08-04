@@ -5,7 +5,7 @@ from transformers import CONFIG_MAPPING, MODEL_NAMES_MAPPING, MODEL_MAPPING, MOD
 from .models.layoutlm2d import (
     LayoutLM2dConfig,
     LayoutLM2dModel,
-    LayoutLMForMaskedLM,
+    LayoutLM2dForMaskedLM,
 )
 
 MODEL_NAMES_MAPPING.update(
@@ -28,6 +28,6 @@ MODEL_MAPPING.update(
 
 MODEL_FOR_MASKED_LM_MAPPING.update(
     [
-        (LayoutLM2dConfig, LayoutLMForMaskedLM)
+        (LayoutLM2dConfig, LayoutLM2dForMaskedLM)
     ]
 )

@@ -948,7 +948,7 @@ class LayoutLM2dModel(LayoutLMPreTrainedModel):
         )
 
 # @add_start_docstrings("""LayoutLM Model with a `language modeling` head on top. """, LAYOUTLM_START_DOCSTRING)
-class LayoutLMForMaskedLM(LayoutLMPreTrainedModel):
+class LayoutLM2dForMaskedLM(LayoutLMPreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
 
